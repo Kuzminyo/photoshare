@@ -95,3 +95,13 @@ def test_database_url_scheme_is_normalized():
     for url in ("postgres://u:p@h/db", "postgresql://u:p@h/db", "postgresql+psycopg2://u:p@h/db"):
         assert Settings(database_url=url).database_url == "postgresql+psycopg2://u:p@h/db"
     assert Settings(database_url="sqlite://").database_url == "sqlite://"
+
+
+def test_base_url_falls_back_to_render_external_url(monkeypatch):
+    from src.conf.config import Settings
+
+    monkeypatch.delenv("BASE_URL", raising=False)
+    monkeypatch.setenv("RENDER_EXTERNAL_URL", "https://photoshare.onrender.com")
+    assert Settings(_env_file=None).base_url == "https://photoshare.onrender.com"
+    monkeypatch.setenv("BASE_URL", "https://custom.example")
+    assert Settings(_env_file=None).base_url == "https://custom.example"

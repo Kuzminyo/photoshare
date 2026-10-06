@@ -1,5 +1,5 @@
 """Application settings read from environment variables and the ``.env`` file."""
-from pydantic import field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,8 +25,11 @@ class Settings(BaseSettings):
     max_upload_size_mb: int = 10
     max_tags_per_photo: int = 5
 
-    # public base URL of the API, used in the links returned to clients
-    base_url: str = "http://localhost:8000"
+    # public base URL of the API, used in the links returned to clients;
+    # on Render it is taken from RENDER_EXTERNAL_URL when BASE_URL is not set
+    base_url: str = Field(
+        "http://localhost:8000", validation_alias=AliasChoices("BASE_URL", "RENDER_EXTERNAL_URL", "base_url")
+    )
 
     # comma separated list, e.g. "http://localhost:3000,http://127.0.0.1:5173"
     cors_origins: str = "http://localhost:3000"

@@ -134,23 +134,32 @@ TEST_DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5440/photosh
 
 Поточне покриття — 100% (поріг у `.coveragerc` — 90%).
 
-## Деплой (Koyeb або Fly.io)
+## Деплой
 
 Застосунку потрібні PostgreSQL і змінні оточення з `.env.example`. `Dockerfile` сам застосовує міграції
-й слухає порт зі змінної `PORT`.
+й слухає порт зі змінної `PORT`. Префікси `postgres://` і `postgresql://` у `DATABASE_URL` застосунок
+перетворює на `postgresql+psycopg2://` автоматично.
 
-**Koyeb**
-1. Створіть базу: *Databases → Create PostgreSQL* і скопіюйте connection string.
-2. *Create Service → GitHub*, оберіть репозиторій, builder — **Dockerfile**, порт `8000`.
-3. Змінні: `DATABASE_URL` (рядок підключення з Koyeb, наприклад `postgres://user:pass@host/db?sslmode=require`),
-   `JWT_SECRET_KEY`, `CLOUDINARY_*`, `BASE_URL=https://<ваш-сервіс>.koyeb.app`.
+### Render (безкоштовно, без картки) — використано для цього проєкту
 
-**Fly.io**
+Koyeb з лютого 2026 не має безкоштовного плану для нових акаунтів, тому проєкт розгорнуто на Render.
+У репозиторії є Blueprint `render.yaml`: він створює безкоштовну базу PostgreSQL і веб-сервіс з `Dockerfile`,
+сам підставляє `DATABASE_URL` і генерує `JWT_SECRET_KEY`.
+
+1. <https://dashboard.render.com> → увійдіть через GitHub.
+2. **New → Blueprint** → оберіть репозиторій `photoshare` → **Connect**.
+3. Заповніть `CLOUDINARY_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` → **Apply**.
+4. Після збірки відкрийте `https://<сервіс>.onrender.com/docs`.
+
+`BASE_URL` на Render задавати не потрібно — береться з `RENDER_EXTERNAL_URL`. Безкоштовний сервіс
+засинає після 15 хвилин без запитів (перший запит після цього — близько хвилини), а безкоштовна база
+живе 30 днів.
+
+### Fly.io
+
 ```bash
 fly launch --no-deploy                    # створить fly.toml з Dockerfile
 fly postgres create && fly postgres attach <db-app-name>
 fly secrets set JWT_SECRET_KEY=... CLOUDINARY_NAME=... CLOUDINARY_API_KEY=... CLOUDINARY_API_SECRET=... BASE_URL=https://<app>.fly.dev
 fly deploy
 ```
-`fly postgres attach` сам задає `DATABASE_URL`. Префікси `postgres://` і `postgresql://` застосунок
-перетворює на `postgresql+psycopg2://` автоматично.

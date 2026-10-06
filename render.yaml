@@ -1,0 +1,28 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> this repository
+databases:
+  - name: photoshare-db
+    plan: free
+    region: frankfurt
+    databaseName: photoshare
+    user: photoshare
+
+services:
+  - type: web
+    name: photoshare
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /api/healthchecker
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: photoshare-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
