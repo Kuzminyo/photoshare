@@ -27,23 +27,24 @@ def get_user_by_email(email: str, db: Session) -> User | None:
 
 
 def get_user_by_username(username: str, db: Session) -> User | None:
-    """Find a user by username.
+    """Find a user by username (case insensitive, so ``Alice`` and ``alice`` are one user).
 
     :param username: The username.
     :param db: The database session.
     :return: The user or ``None``.
     """
-    return db.scalar(select(User).where(User.username == username))
+    return db.scalar(select(User).where(func.lower(User.username) == username.lower()))
 
 
 def get_user_by_login(login: str, db: Session) -> User | None:
-    """Find a user by email or username, whichever matches.
+    """Find a user by email or username, whichever matches; case and surrounding spaces are ignored.
 
     :param login: The email or the username.
     :param db: The database session.
     :return: The user or ``None``.
     """
-    return db.scalar(select(User).where(or_(User.email == login.lower(), User.username == login)))
+    login = login.strip().lower()
+    return db.scalar(select(User).where(or_(User.email == login, func.lower(User.username) == login)))
 
 
 def create_user(body: UserCreate, hashed_password: str, db: Session) -> User:

@@ -30,8 +30,9 @@ def update_me(
     db: Session = Depends(get_db),
 ):
     fields = body.model_dump(exclude_unset=True, exclude_none=True)
-    if "username" in fields and fields["username"] != user.username:
-        if repository_users.get_user_by_username(fields["username"], db):
+    if "username" in fields:
+        other = repository_users.get_user_by_username(fields["username"], db)
+        if other is not None and other.id != user.id:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username is already taken")
     if "email" in fields:
         fields["email"] = fields["email"].lower()

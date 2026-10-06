@@ -28,9 +28,17 @@ def test_signup_conflicts_and_validation(client):
 
 
 def test_login_by_email_or_username(client):
-    signup(client, "alice")
-    assert login(client, "alice")["token_type"] == "bearer"
-    assert login(client, "ALICE@example.com")["access_token"]
+    signup(client, "Alice")
+    assert login(client, "Alice")["token_type"] == "bearer"
+    assert login(client, "alice")["access_token"]
+    assert login(client, " ALICE@example.com ")["access_token"]
+
+
+def test_usernames_differing_only_in_case_are_taken(client):
+    signup(client, "Alice")
+    resp = client.post("/api/auth/signup", json={"username": "alice", "email": "a2@example.com", "password": "secret123"})
+    assert resp.status_code == 409
+    assert client.get("/api/users/ALICE").json()["username"] == "Alice"
 
 
 def test_login_wrong_credentials(client):

@@ -21,6 +21,8 @@ def test_update_conflicts_and_password(client, alice, bob):
     assert client.patch("/api/users/me", json={"username": "bob"}, headers=alice["headers"]).status_code == 409
     assert client.patch("/api/users/me", json={"email": "bob@example.com"}, headers=alice["headers"]).status_code == 409
     assert client.patch("/api/users/me", json={"username": "me"}, headers=alice["headers"]).status_code == 422
+    # changing only the case of own username is fine
+    assert client.patch("/api/users/me", json={"username": "Alice"}, headers=alice["headers"]).json()["username"] == "Alice"
     # own email / username again is fine
     resp = client.patch("/api/users/me", json={"email": "alice@example.com", "username": "alice"}, headers=alice["headers"])
     assert resp.status_code == 200
