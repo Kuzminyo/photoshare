@@ -1,0 +1,7 @@
+[run]
+source = src, main
+omit = migrations/*, tests/*
+
+[report]
+show_missing = True
+fail_under = 90
