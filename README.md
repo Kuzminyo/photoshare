@@ -1,5 +1,8 @@
 # PhotoShare — REST API
 
+**Демо:** <https://photoshare-uzws.onrender.com/docs> (Render, безкоштовний план — перший запит після простою
+може тривати до хвилини).
+
 Командний проєкт курсу Python Web (GoIT). REST API для обміну світлинами на **FastAPI**,
 **PostgreSQL** + **SQLAlchemy**, сховище зображень — **Cloudinary**.
 
